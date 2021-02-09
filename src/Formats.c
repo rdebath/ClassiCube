@@ -716,8 +716,14 @@ static void Cw_Callback_4(struct NbtTag* tag) {
 
 	if (IsTag(tag->parent, "EnvMapAppearance")) {
 		if (IsTag(tag, "SideBlock")) { Env.SidesBlock = NbtTag_U8(tag);  return; }
-		if (IsTag(tag, "EdgeBlock")) { Env.EdgeBlock  = NbtTag_U8(tag);  return; }
 		if (IsTag(tag, "SideLevel")) { Env.EdgeHeight = NbtTag_I16(tag); return; }
+
+		if (IsTag(tag, "EdgeBlock")) {
+		    Env.EdgeBlock  = NbtTag_U8(tag);
+		    if (Env.EdgeBlock < BLOCK_WATER || Env.EdgeBlock > BLOCK_STILL_LAVA)
+			Env.SidesOffset = 0;
+		    return;
+		}
 
 		if (IsTag(tag, "TextureURL")) {
 			cc_string url = NbtTag_String(tag);

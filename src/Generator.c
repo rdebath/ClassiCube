@@ -128,6 +128,11 @@ static void FlatgrassGen_Generate(void) {
 	Gen_CurrentState = "Setting grass blocks";
 	FlatgrassGen_MapSet(World.Height / 2 - 1, World.Height / 2 - 1, BLOCK_GRASS);
 
+	Env_SetEdgeBlock(BLOCK_GRASS);
+	Env_SetSidesBlock(BLOCK_DIRT);
+	Env_SetEdgeHeight(World.Height / 2);
+	Env_SetSidesOffset(0);
+
 	gen_done = true;
 }
 
