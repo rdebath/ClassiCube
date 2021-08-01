@@ -63,7 +63,7 @@ struct HacksComp {
 	cc_bool Noclip, Flying, FlyingUp, FlyingDown, Speeding, HalfSpeeding;
 	float MaxHorSpeed;
 	cc_string HacksFlags;
-	char __HacksFlagsBuffer[STRING_SIZE * 2];	
+	char __HacksFlagsBuffer[STRING_SIZE * 3];
 };
 
 void HacksComp_Init(struct HacksComp* hacks);

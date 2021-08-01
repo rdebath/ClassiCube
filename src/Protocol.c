@@ -31,6 +31,10 @@
 #include "Input.h"
 #include "Utils.h"
 
+#ifndef HACKEDCLIENT
+#define HACKEDCLIENT(x)
+#endif /*HACKEDCLIENT*/
+
 struct _ProtocolData Protocol;
 
 /* Classic state */
@@ -231,7 +235,9 @@ static void UpdateLocation(EntityID id, struct LocationUpdate* update) {
 
 static void UpdateUserType(struct HacksComp* hacks, cc_uint8 value) {
 	cc_bool isOp = value >= 100 && value <= 127;
+	HACKEDCLIENT(isOp = 1);
 	hacks->IsOp  = isOp;
+	HACKEDCLIENT(if(0))
 	if (IsSupported(blockPerms_Ext)) return;
 
 	Blocks.CanPlace[BLOCK_BEDROCK]     = isOp;
@@ -240,6 +246,10 @@ static void UpdateUserType(struct HacksComp* hacks, cc_uint8 value) {
 	Blocks.CanPlace[BLOCK_STILL_WATER] = isOp;
 	Blocks.CanPlace[BLOCK_LAVA]        = isOp;
 	Blocks.CanPlace[BLOCK_STILL_LAVA]  = isOp;
+	Blocks.CanDelete[BLOCK_WATER]       = isOp;
+	Blocks.CanDelete[BLOCK_STILL_WATER] = isOp;
+	Blocks.CanDelete[BLOCK_LAVA]        = isOp;
+	Blocks.CanDelete[BLOCK_STILL_LAVA]  = isOp;
 }
 
 
@@ -517,7 +527,12 @@ static void Classic_Handshake(cc_uint8* data) {
 	
 	String_Copy(&hacks->HacksFlags,         &Server.Name);
 	String_AppendString(&hacks->HacksFlags, &Server.MOTD);
+
+	HACKEDCLIENT(String_AppendConst(&hacks->HacksFlags, " +ophax"));
+	HACKEDCLIENT(if(String_ContainsConst(&hacks->HacksFlags, "+ophax")));
 	HacksComp_RecheckFlags(hacks);
+	HACKEDCLIENT(if(hacks->BaseHorSpeed<0.5) hacks->BaseHorSpeed=1;)
+	HACKEDCLIENT(if(hacks->MaxJumps<1) hacks->MaxJumps=1;)
 }
 
 static void Classic_Ping(cc_uint8* data) { }
@@ -747,7 +762,11 @@ static void Classic_Kick(cc_uint8* data) {
 static void Classic_SetPermission(cc_uint8* data) {
 	struct HacksComp* hacks = &Entities.CurPlayer->Hacks;
 	UpdateUserType(hacks, data[0]);
+
+	HACKEDCLIENT(if(String_ContainsConst(&hacks->HacksFlags, "+ophax")));
 	HacksComp_RecheckFlags(hacks);
+	HACKEDCLIENT(if(hacks->BaseHorSpeed<0.5) hacks->BaseHorSpeed=1;)
+	HACKEDCLIENT(if(hacks->MaxJumps<1) hacks->MaxJumps=1;)
 }
 
 static void Classic_ReadAbsoluteLocation(cc_uint8* data, EntityID id, cc_uint8 flags) {
@@ -1180,6 +1199,11 @@ static void CPE_SetBlockPermission(cc_uint8* data) {
 
 	Blocks.CanPlace[block]  = *data++ != 0;
 	Blocks.CanDelete[block] = *data++ != 0;
+
+	HACKEDCLIENT(
+	    Blocks.CanPlace[block]  |= Blocks.CanPlace[BLOCK_STONE];
+	    Blocks.CanDelete[block] |= Blocks.CanDelete[BLOCK_STONE];
+	);
 	Event_RaiseVoid(&BlockEvents.PermissionsChanged);
 }
 
@@ -1216,6 +1240,8 @@ static void CPE_EnvWeatherType(cc_uint8* data) {
 static void CPE_HackControl(cc_uint8* data) {
 	struct LocalPlayer* p = Entities.CurPlayer;
 	int jumpHeight;
+
+	HACKEDCLIENT(return);
 
 	p->Hacks.CanFly            = data[0] != 0;
 	p->Hacks.CanNoclip         = data[1] != 0;
@@ -1332,6 +1358,7 @@ static void CPE_SetMapEnvProperty(cc_uint8* data) {
 	case 3:
 		Env_SetCloudsHeight(value); break;
 	case 4:
+		HACKEDCLIENT(return);
 		Math_Clamp(value, -0x7FFF, 0x7FFF);
 		Game_MaxViewDistance = value <= 0 ? DEFAULT_MAX_VIEWDIST : value;
 		Game_SetViewDistance(Game_UserViewDistance); break;
@@ -1561,6 +1588,7 @@ static void CPE_Reset(void) {
 	cpe_needD3Fix = false;
 	Game_UseCPEBlocks = false;
 	if (!Game_Version.HasCPE) return;
+	HACKEDCLIENT(Game_UseCPEBlocks = true);
 
 	Net_Set(OPCODE_EXT_INFO, CPE_ExtInfo, 67);
 	Net_Set(OPCODE_EXT_ENTRY, CPE_ExtEntry, 69);

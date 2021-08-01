@@ -519,7 +519,7 @@ static void TeleportCommand_Execute(const cc_string* args, int argsCount) {
 
 static struct ChatCommand TeleportCommand = {
 	"TP", TeleportCommand_Execute,
-	COMMAND_FLAG_SINGLEPLAYER_ONLY,
+	0, // COMMAND_FLAG_SINGLEPLAYER_ONLY,
 	{
 		"&a/client tp [x y z]",
 		"&eMoves you to the given coordinates.",
