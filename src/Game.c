@@ -465,7 +465,7 @@ static void Game_Load(void) {
 	}
 
 	entTaskI = ScheduledTask_Add(GAME_DEF_TICKS, Entities_Tick);
-	if (Gfx_WarnIfNecessary()) EnvRenderer_SetMode(EnvRenderer_Minimal | ENV_LEGACY);
+	// if (Gfx_WarnIfNecessary()) EnvRenderer_SetMode(EnvRenderer_Minimal | ENV_LEGACY);
 	Server.BeginConnect();
 }
 
